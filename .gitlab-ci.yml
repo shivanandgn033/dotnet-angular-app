@@ -27,4 +27,5 @@ deploy:
     paths:
       - public
   only:
+    - master
     - main # Or your desired branch
