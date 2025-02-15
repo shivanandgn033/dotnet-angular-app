@@ -1,0 +1,30 @@
+image: node:latest # Use a Node.js image for Angular build
+
+stages:
+  - build
+  - deploy
+
+variables:
+  ANGULAR_DIST_PATH: ./ClientApp/dist # Path to the Angular build output
+
+build:
+  stage: build
+  script:
+    - cd ClientApp # Navigate to the Angular project
+    - npm install # Install Angular dependencies
+    - npm run build --prod # Build the Angular project for production
+  artifacts:
+    paths:
+      - ${{ variables.ANGULAR_DIST_PATH }}
+
+deploy:
+  stage: deploy
+  image: alpine:latest # Use a minimal image
+  script:
+    - apk add --no-cache rsync # Install rsync for efficient copying
+    - rsync -avz --delete ${{ variables.ANGULAR_DIST_PATH }}/ public/ # Copy to the 'public' directory (required by GitLab Pages)
+  artifacts: # Important: Define the 'public' directory as an artifact
+    paths:
+      - public
+  only:
+    - main # Or your desired branch
